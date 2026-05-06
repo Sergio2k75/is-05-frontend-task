@@ -1,13 +1,55 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens — keep this file in sync with docs/DESIGN.md.
+ *
+ * 1. Define raw tokens on :root as CSS variables.
+ * 2. Bridge them into Tailwind v4 via @theme inline so the agent can use
+ *    `bg-<token>`, `rounded-<token>`, `text-<token>` etc.
+ *
+ * The starter ships with neutral defaults — replace them with the tokens
+ * extracted from your Figma file before implementing sections.
+ */
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Replace these with your own tokens from docs/DESIGN.md */
+  --color-brand-primary: #0000ff;
+  --color-brand-text: #111111;
+  --color-brand-muted: #444444;
+  --color-brand-inverse: #ffffff;
+  --color-brand-surface: #ffffff;
+  --color-brand-surface-dark: #0a0a0a;
+  --color-brand-border: #e5e5e5;
+
+  --radius-brand-button: 12px;
+  --radius-brand-input: 12px;
+  --radius-brand-card: 16px;
+
+  --space-brand-control-x: 24px;
+  --space-brand-control-y: 12px;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-text: var(--color-brand-text);
+  --color-brand-muted: var(--color-brand-muted);
+  --color-brand-inverse: var(--color-brand-inverse);
+  --color-brand-surface: var(--color-brand-surface);
+  --color-brand-surface-dark: var(--color-brand-surface-dark);
+  --color-brand-border: var(--color-brand-border);
+
+  --radius-brand-button: var(--radius-brand-button);
+  --radius-brand-input: var(--radius-brand-input);
+  --radius-brand-card: var(--radius-brand-card);
+
+  --spacing-brand-control-x: var(--space-brand-control-x);
+  --spacing-brand-control-y: var(--space-brand-control-y);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -22,5 +64,5 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
