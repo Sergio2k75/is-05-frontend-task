@@ -1,102 +1,106 @@
-# is-05-frontend-task
+# Ollama Panel
 
-Day 5 homework starter — build a real Figma-driven landing page (or any 5-section UI) using the **AI-frontend workflow** from the workshop: Cursor / Claude Code + Figma MCP + DESIGN.md + Tailwind v4 tokens + shadcn + Next.js 16.
+Local-first web dashboard for monitoring one or more [Ollama](https://ollama.com) hosts. See host online/offline status, Ollama version, installed models, running models, and switch between hosts from the browser.
 
-> Slides: [is-05-slidev-frontend](https://koldovsky.github.io/is-05-slidev-frontend/)
-> Reference implementation: [koldovsky/is-05-frontend](https://github.com/koldovsky/is-05-frontend)
+## Prerequisites
 
----
+- **Node.js** 20 or newer
+- **Ollama** running locally (default API: `http://localhost:11434`)
 
-## Quick Start
+## Setup
 
 ```bash
-git clone https://github.com/koldovsky/is-05-frontend-task.git
-cd is-05-frontend-task
+git clone <repo-url>
+cd ollama_panel
 npm install
-npm run dev          # → http://localhost:3000
 ```
 
-Then:
+## Start
 
 ```bash
-cp .cursor/mcp.json.example .cursor/mcp.json
-# Edit .cursor/mcp.json — pick the MCPs you want to use, supply env vars.
-# Reload Cursor → MCP panel should show servers as green.
+npm run dev
 ```
 
----
+Open [http://localhost:3000](http://localhost:3000).
 
-## What's in the Box
+If Ollama is not running, the panel still loads and shows an offline state for the selected host.
 
-| Path | Purpose |
-|------|---------|
-| `app/page.tsx` | Empty landing page — replace with your composed sections |
-| `app/layout.tsx` | Root layout (Geist fonts, full-height body) |
-| `app/globals.css` | Tailwind v4 entry point + token slot |
-| `components/sections/` | (empty) — your `Hero`, `Features`, `Pricing`, ... live here |
-| `components/ui/` | (empty) — your `Button`, `Input`, `Logo`, ... primitives |
-| `docs/prd.md` | Product brief — fill in your Figma URLs and constraints |
-| `docs/DESIGN.md` | Agent-readable style guide — fill in your tokens |
-| `.cursor/mcp.json.example` | Pre-wired Figma / shadcn / context7 / filesystem MCPs |
-| `.agents/skills/` | Pinned Vercel skills (`vercel-react-best-practices`, `web-design-guidelines`) |
-| `AGENTS.md` / `CLAUDE.md` | Engineering rules for the agent |
-| `skills-lock.json` | Pinned skill versions for reproducibility |
+## Usage
 
----
+- **Default host:** `http://localhost:11434`
+- **Add / remove hosts:** use the host manager in the UI (non-default hosts can be removed)
+- **Persistence:** host list is stored in `localStorage`
+- **Switch host:** select a host in the UI; the app navigates with `?host=` and refreshes server-rendered status and models
 
-## Assignment Checklist
+## Scripts
 
-1. **Pick a Figma design** to implement (suggested file in `docs/prd.md`, or bring your own).
-2. **Fill `docs/prd.md`** — Figma URLs + audience + constraints.
-3. **Fill `docs/DESIGN.md`** — colors, typography, spacing, radius from your Figma.
-4. **Translate `DESIGN.md` into tokens** in `app/globals.css` (`:root` + `@theme inline`).
-5. **Implement at least 3 sections** as RSC components in `components/sections/`, composed from primitives in `components/ui/`.
-6. **Add at least 1 client component** (`"use client"`) with proper a11y (focus, aria, keyboard) — burger menu, dialog, tabs, etc.
-7. **Run** `npm run lint`, `npx tsc --noEmit`, `npm run build` — all green.
-8. **Open a PR** to `koldovsky/is-05-frontend-task` from a branch named `frontend/<your-github-username>`.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Development server |
+| `npm run build` | Production build |
+| `npm run start` | Run production server |
+| `npm run lint` | ESLint |
 
-### Bonus
+## Architecture
 
-- Wire **Figma MCP** properly and demo a "URL → section" generation in the PR description.
-- Install **caveman** in your agent and screenshot `/caveman-stats` after the session.
-- Run `/caveman:compress AGENTS.md` and commit both `AGENTS.md` (compressed) and `AGENTS.original.md`.
-- Use **shadcn MCP** to install at least one block, re-themed through your tokens.
-- Add a Playwright MCP screenshot QA step.
-- Deploy to **Vercel** and put the preview URL in the PR.
-- Add `docs/frontend-testing/<your-page>.md` — A/B compare the same prompt with vs without DESIGN.md / Figma MCP.
+```mermaid
+flowchart TB
+  Browser["Browser"]
+  Page["app/page.tsx\nRSC"]
+  Sections["sections/\nHero Status Models"]
+  HostMgr["HostManager\nclient"]
+  ApiRoute["/api/ollama/status"]
+  OllamaLib["lib/ollama.ts"]
+  Ollama["Ollama host\n:11434"]
 
----
-
-## Workflow Reminder
-
-The canonical 2026 frontend agent loop:
-
-```text
-1. Product intent       → docs/prd.md
-2. Design context       → Figma frame URL (Figma MCP) + docs/DESIGN.md
-3. Engineering context  → AGENTS.md / CLAUDE.md
-4. Component context    → components/ui + (optionally) shadcn MCP
-5. Agent plan           → ask agent to plan first, no edits
-6. Human review         → confirm scope
-7. Implementation       → agent edits files
-8. Verification         → lint, typecheck, build
-9. Visual QA            → Playwright MCP screenshots vs Figma
-10. PR                  → human + AI code review on the PR
+  Browser --> Page
+  Page --> Sections
+  Browser --> HostMgr
+  HostMgr -->|"router ?host="| Page
+  Page --> OllamaLib
+  ApiRoute --> OllamaLib
+  OllamaLib --> Ollama
+  HostMgr -->|"localStorage"| Browser
 ```
 
----
+- **Server data layer:** [`lib/ollama.ts`](lib/ollama.ts) validates host URLs (`http:` / `https:` only), then calls Ollama `GET /api/version`, `GET /api/tags`, and `GET /api/ps`.
+- **API route:** [`app/api/ollama/status/route.ts`](app/api/ollama/status/route.ts) proxies host status so the browser avoids CORS issues.
+- **UI:** three React Server Components in [`components/sections/`](components/sections/) (`HeroSection`, `StatusSection`, `ModelsSection`) plus one client component [`components/HostManager.tsx`](components/HostManager.tsx) for host CRUD and selection.
+- **Styling:** design tokens in [`app/globals.css`](app/globals.css), defined in [`docs/DESIGN.md`](docs/DESIGN.md).
 
-## Useful Commands
+## Project docs
 
-```bash
-npm run dev              # dev server (Turbopack)
-npm run build            # production build
-npm run lint             # eslint
-npx tsc --noEmit         # typecheck
-```
+| Doc | Purpose |
+|-----|---------|
+| [docs/PRD.md](docs/PRD.md) | Product spec, data model, API contract |
+| [docs/DESIGN.md](docs/DESIGN.md) | Design tokens and component guidelines |
+| [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md) | Implementation milestones |
+| [AGENTS.md](AGENTS.md) | AI coding rules for contributors |
 
----
+## Design note
 
-## License
+The UI uses the official [**Porsche Design System**](https://designsystem.porsche.com/) React package and Tailwind theme.
 
-MIT — same as the parent workshop materials.
+| Reference | Role in this project |
+|-----------|----------------------|
+| [Porsche Web Design System v4 (Figma)](https://www.figma.com/community/file/1385198638659084461/web-design-system-v4) | Layout and component reference |
+| [designsystem.porsche.com](https://designsystem.porsche.com/) | PDS documentation |
+
+What is integrated:
+
+- `@porsche-design-system/components-react` with SSR provider and font partials
+- PDS Tailwind theme in [`app/globals.css`](app/globals.css)
+- PDS components: `PButton`, `PTag`, `PModal`, `PInputUrl`, `PInputText`, `PHeading`, `PText`, `PInlineNotification`
+- Thin wrappers in [`components/ui/`](components/ui/) where helpful for shared patterns
+
+The dashboard layout is tuned for this app (1120px content width, Ollama-specific sections). It may still differ from every screen in the Figma community file because that file is a full design system library, not this product’s final mockups.
+
+## Troubleshooting
+
+| Issue | What to check |
+|-------|----------------|
+| Host shows offline | Start Ollama; confirm the host URL (default `http://localhost:11434`) |
+| Invalid host URL | Only `http://` and `https://` URLs are accepted |
+| Empty model lists | Host may be online with no models pulled yet |
+
+**Security:** This panel is intended for **local development** first. If you deploy it publicly, revisit host URL validation and server-side fetch rules in [docs/PRD.md](docs/PRD.md).

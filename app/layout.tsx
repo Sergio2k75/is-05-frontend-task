@@ -1,21 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { PorscheDesignSystemProvider } from "@porsche-design-system/components-react/ssr";
+import {
+  getComponentChunkLinks,
+  getFontLinks,
+  getIconLinks,
+  getMetaTagsAndIconLinks,
+} from "@porsche-design-system/components-react/partials";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
 export const metadata: Metadata = {
-  title: "is-05-frontend-task — AI Frontend Workflow 2026",
-  description:
-    "Day 5 homework starter — build a Figma-driven Next.js landing page using the AI-frontend workflow.",
+  title: "Ollama Panel",
+  description: "Local-first dashboard for monitoring Ollama hosts",
 };
 
 export default function RootLayout({
@@ -24,11 +19,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col">{children}</body>
+    <html lang="en" className="scheme-light">
+      <head>
+        {getFontLinks({ format: "jsx" })}
+        {getIconLinks({ format: "jsx" })}
+        {getComponentChunkLinks({ format: "jsx" })}
+        {getMetaTagsAndIconLinks({ appTitle: "Ollama Panel", format: "jsx" })}
+      </head>
+      <body className="min-h-screen bg-canvas text-primary antialiased">
+        <PorscheDesignSystemProvider>{children}</PorscheDesignSystemProvider>
+      </body>
     </html>
   );
 }
