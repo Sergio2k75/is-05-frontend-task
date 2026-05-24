@@ -10,6 +10,11 @@ type PageProps = {
   searchParams: Promise<{ host?: string }>;
 };
 
+/**
+ * Home page displaying Ollama panel dashboard with host selection and status.
+ * @param searchParams - URL search parameters containing optional host parameter
+ * @returns The main page component
+ */
 export default async function Home({ searchParams }: PageProps) {
   const params = await searchParams;
   const hostParam = params.host ?? DEFAULT_HOST_URL;

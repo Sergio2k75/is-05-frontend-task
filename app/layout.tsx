@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   description: "Local-first dashboard for monitoring Ollama hosts",
 };
 
+/**
+ * Root layout component providing Porsche Design System styling and metadata.
+ * @param children - Child components to render
+ * @returns The root layout wrapper
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

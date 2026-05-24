@@ -16,6 +16,15 @@ type ButtonProps = {
   "aria-label"?: string;
 };
 
+/**
+ * A customizable Button component with variant styling and accessibility support.
+ * @param children - The button text or content
+ * @param variant - The button style variant (primary, secondary, or danger)
+ * @param className - Additional CSS classes to apply
+ * @param type - The button type (button, submit, or reset)
+ * @param props - Additional button properties (id, disabled, onClick, aria-label)
+ * @returns A styled button component
+ */
 export function Button({
   children,
   variant = "primary",

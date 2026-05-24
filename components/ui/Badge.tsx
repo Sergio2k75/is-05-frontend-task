@@ -9,6 +9,9 @@ type BadgeProps = {
   variant?: BadgeVariant;
 };
 
+/**
+ * Maps Badge variants to Porsche Design System tag variants.
+ */
 const variantMap: Record<BadgeVariant, TagVariant> = {
   success: "success",
   danger: "error",
@@ -16,6 +19,12 @@ const variantMap: Record<BadgeVariant, TagVariant> = {
   accent: "primary",
 };
 
+/**
+ * A Badge component that displays a labeled tag with a specified variant.
+ * @param children - The text or content to display in the badge
+ * @param variant - The badge style variant (success, danger, neutral, or accent)
+ * @returns A styled badge component
+ */
 export function Badge({ children, variant = "neutral" }: BadgeProps) {
   return <PTag variant={variantMap[variant]}>{children}</PTag>;
 }

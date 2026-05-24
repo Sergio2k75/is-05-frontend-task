@@ -6,6 +6,11 @@ import type {
 
 const FETCH_TIMEOUT_MS = 5000;
 
+/**
+ * Validates and normalizes a host URL to ensure it uses http or https protocol.
+ * @param raw - The raw URL string to validate
+ * @returns The normalized URL origin if valid, or null if invalid
+ */
 export function validateHostUrl(raw: string): string | null {
   try {
     const url = new URL(raw.trim());
@@ -18,6 +23,11 @@ export function validateHostUrl(raw: string): string | null {
   }
 }
 
+/**
+ * Fetches and parses JSON from a URL with timeout protection.
+ * @param url - The URL to fetch from
+ * @returns The parsed JSON response or null if the request fails
+ */
 async function fetchJson<T>(url: string): Promise<T | null> {
   try {
     const response = await fetch(url, {
@@ -37,6 +47,11 @@ type VersionResponse = { version?: string };
 type TagsResponse = { models?: OllamaModel[] };
 type PsResponse = { models?: OllamaRunningModel[] };
 
+/**
+ * Fetches the status of an Ollama host including version, available models, and running models.
+ * @param hostInput - The host URL to query
+ * @returns The Ollama panel status with host information, connectivity, and model data
+ */
 export async function fetchOllamaStatus(hostInput: string): Promise<OllamaPanelStatus> {
   const host = validateHostUrl(hostInput);
 

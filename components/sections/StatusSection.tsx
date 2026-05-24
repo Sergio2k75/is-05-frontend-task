@@ -7,6 +7,11 @@ type StatusSectionProps = {
   status: OllamaPanelStatus;
 };
 
+/**
+ * Displays the connection status and Ollama version information for a host.
+ * @param status - The Ollama panel status containing host information and version
+ * @returns The status section component
+ */
 export function StatusSection({ status }: StatusSectionProps) {
   const statusLabel = status.online ? "Online" : "Offline";
   const statusVariant = status.online ? "success" : "danger";

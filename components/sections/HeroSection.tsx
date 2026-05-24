@@ -5,6 +5,11 @@ type HeroSectionProps = {
   activeHost: string;
 };
 
+/**
+ * Hero section displaying the Ollama Panel title and description.
+ * @param activeHost - The currently active Ollama host URL
+ * @returns The hero section component
+ */
 export function HeroSection({ activeHost }: HeroSectionProps) {
   return (
     <section aria-labelledby="hero-title" className="grid gap-fluid-sm">

@@ -25,6 +25,10 @@ type HostManagerProps = {
   activeHost: string;
 };
 
+/**
+ * Loads hosts from localStorage or returns the default host.
+ * @returns Array of OllamaHost objects with at least the default host
+ */
 function loadHosts(): OllamaHost[] {
   if (typeof window === "undefined") {
     return [DEFAULT_HOST];
@@ -46,10 +50,19 @@ function loadHosts(): OllamaHost[] {
   }
 }
 
+/**
+ * Saves hosts to localStorage as a JSON string.
+ * @param hosts - Array of hosts to persist
+ */
 function saveHosts(hosts: OllamaHost[]) {
   localStorage.setItem(HOSTS_STORAGE_KEY, JSON.stringify(hosts));
 }
 
+/**
+ * Host Manager component for adding, removing, and selecting Ollama hosts.
+ * @param activeHost - The currently active Ollama host URL
+ * @returns The host manager section component
+ */
 export function HostManager({ activeHost }: HostManagerProps) {
   const router = useRouter();
   const dialogDescriptionId = useId();
@@ -67,6 +80,9 @@ export function HostManager({ activeHost }: HostManagerProps) {
     localStorage.setItem(ACTIVE_HOST_STORAGE_KEY, activeHost);
   }, [activeHost]);
 
+  /**
+   * Selects a host and navigates to it.
+   */
   const selectHost = useCallback(
     (url: string) => {
       localStorage.setItem(ACTIVE_HOST_STORAGE_KEY, url);
@@ -75,6 +91,9 @@ export function HostManager({ activeHost }: HostManagerProps) {
     [router],
   );
 
+  /**
+   * Opens the add host dialog and resets the form.
+   */
   const openDialog = () => {
     setFormError(null);
     setUrlValue("");
@@ -82,6 +101,9 @@ export function HostManager({ activeHost }: HostManagerProps) {
     setDialogOpen(true);
   };
 
+  /**
+   * Closes the add host dialog and returns focus to the add button.
+   */
   const closeDialog = () => {
     setDialogOpen(false);
     setFormError(null);
@@ -99,8 +121,9 @@ export function HostManager({ activeHost }: HostManagerProps) {
 
     return () => window.clearTimeout(timer);
   }, [dialogOpen]);
-
-  const handleAddHost = (event: React.FormEvent) => {
+  /**
+   * Handles adding a new host after form validation.
+   */  const handleAddHost = (event: React.FormEvent) => {
     event.preventDefault();
     const normalizedUrl = validateHostUrl(urlValue);
 
@@ -132,6 +155,9 @@ export function HostManager({ activeHost }: HostManagerProps) {
     selectHost(normalizedUrl);
   };
 
+  /**
+   * Removes a host from the list and navigates to default host if needed.
+   */
   const handleRemoveHost = (host: OllamaHost) => {
     if (host.isDefault) {
       return;

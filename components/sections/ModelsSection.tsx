@@ -6,6 +6,12 @@ type ModelsSectionProps = {
   status: OllamaPanelStatus;
 };
 
+/**
+ * Displays a list of models with optional empty state message.
+ * @param items - Array of items with names to display
+ * @param emptyMessage - Message to show when the list is empty
+ * @returns A list component or empty state message
+ */
 function ModelList({
   items,
   emptyMessage,
@@ -23,9 +29,9 @@ function ModelList({
 
   return (
     <ul className="grid gap-static-sm" role="list">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <li
-          key={item.name}
+          key={`${item.name}-${index}`}
           className="rounded-md border border-contrast-low bg-frosted-soft px-static-sm py-static-sm break-all text-small"
         >
           {item.name}
@@ -35,6 +41,11 @@ function ModelList({
   );
 }
 
+/**
+ * Displays installed and running models on a host.
+ * @param status - The Ollama panel status containing model information
+ * @returns The models section component
+ */
 export function ModelsSection({ status }: ModelsSectionProps) {
   return (
     <section aria-labelledby="models-section-title" className="grid gap-fluid-md">
