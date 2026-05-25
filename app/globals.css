@@ -22,8 +22,8 @@
   --color-focus: #0066cc;
 
   /* Typography */
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-sans: arial, helvetica, sans-serif;
+  --font-mono: "SFMono-Regular", consolas, "Liberation Mono", monospace;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -70,21 +70,21 @@
 }
 
 @theme {
-  --colors-background: var(--color-background);
-  --colors-surface: var(--color-surface);
-  --colors-surface-muted: var(--color-surface-muted);
-  --colors-foreground: var(--color-foreground);
-  --colors-muted-foreground: var(--color-muted-foreground);
-  --colors-border: var(--color-border);
-  --colors-border-strong: var(--color-border-strong);
-  --colors-primary: var(--color-primary);
-  --colors-primary-foreground: var(--color-primary-foreground);
-  --colors-accent: var(--color-accent);
-  --colors-accent-foreground: var(--color-accent-foreground);
-  --colors-success: var(--color-success);
-  --colors-warning: var(--color-warning);
-  --colors-danger: var(--color-danger);
-  --colors-focus: var(--color-focus);
+  --color-background: var(--color-background);
+  --color-surface: var(--color-surface);
+  --color-surface-muted: var(--color-surface-muted);
+  --color-foreground: var(--color-foreground);
+  --color-muted-foreground: var(--color-muted-foreground);
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+  --color-primary: var(--color-primary);
+  --color-primary-foreground: var(--color-primary-foreground);
+  --color-accent: var(--color-accent);
+  --color-accent-foreground: var(--color-accent-foreground);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-danger: var(--color-danger);
+  --color-focus: var(--color-focus);
 }
 
 :not(:defined, [data-ssr]) {

@@ -164,7 +164,6 @@ Token values and Tailwind setup: see [DESIGN.md](DESIGN.md).
 * Keep timeouts short.
 * Do not expose stack traces in the UI.
 * Treat user-entered host URLs as untrusted input.
-* This project is intended for local development first.
 
 ## 9. User Stories
 

@@ -103,4 +103,4 @@ The dashboard layout is tuned for this app (1120px content width, Ollama-specifi
 | Invalid host URL | Only `http://` and `https://` URLs are accepted |
 | Empty model lists | Host may be online with no models pulled yet |
 
-**Security:** This panel is intended for **local development** first. If you deploy it publicly, revisit host URL validation and server-side fetch rules in [docs/PRD.md](docs/PRD.md).
+**Security:** This panel is intended for **local Ollama version** first. If you deploy it publicly, revisit host URL validation and server-side fetch rules in [docs/PRD.md](docs/PRD.md).
