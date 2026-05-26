@@ -6,7 +6,6 @@ import {
   PButton,
   PHeading,
   PInputText,
-  PInputUrl,
   PModal,
   PTag,
   PText,
@@ -128,7 +127,9 @@ export function HostManager({ activeHost }: HostManagerProps) {
     const normalizedUrl = validateHostUrl(urlValue);
 
     if (!normalizedUrl) {
-      setFormError("Enter a valid URL starting with http:// or https://");
+      setFormError(
+        "Enter an IP, hostname, or URL. http/https only; port defaults to 11434.",
+      );
       return;
     }
 
@@ -246,16 +247,17 @@ export function HostManager({ activeHost }: HostManagerProps) {
               Add Ollama host
             </PHeading>
             <PText id={dialogDescriptionId} size="small" color="contrast-medium">
-              Enter an Ollama base URL. Only http and https are allowed.
+              Enter an IP, hostname, or full URL. http and https only; port defaults
+              to 11434 when omitted.
             </PText>
           </div>
 
           <form className="grid gap-fluid-sm" onSubmit={handleAddHost}>
-            <PInputUrl
+            <PInputText
               ref={urlInputRef}
               name="host-url"
               label="Host URL"
-              placeholder="http://localhost:11434"
+              placeholder="192.168.1.10 or http://192.168.1.10:11434"
               value={urlValue}
               required
               state={formError ? "error" : "none"}
