@@ -1,3 +1,4 @@
+import { OLLAMA_DEFAULT_PORT } from "./hosts";
 import type {
   OllamaModel,
   OllamaPanelStatus,
@@ -6,21 +7,67 @@ import type {
 
 const FETCH_TIMEOUT_MS = 5000;
 
+const HTTP_SCHEME_PATTERN = /^https?:\/\//i;
+
+/**
+ * Normalizes shorthand host input (IP, hostname, or full URL) to an Ollama base URL.
+ * Prepends http:// when missing; defaults port to Ollama's 11434 when omitted.
+ * @param raw - User-entered host string
+ * @returns Normalized origin (including explicit port) or null if invalid
+ */
+export function normalizeHostInput(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  let candidate = trimmed;
+  if (!HTTP_SCHEME_PATTERN.test(candidate)) {
+    candidate = `http://${candidate}`;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(candidate);
+  } catch {
+    return null;
+  }
+
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return null;
+  }
+
+  if (url.username || url.password) {
+    return null;
+  }
+
+  if (!url.hostname) {
+    return null;
+  }
+
+  const path = url.pathname;
+  if (path && path !== "/") {
+    return null;
+  }
+
+  if (url.search || url.hash) {
+    return null;
+  }
+
+  if (!url.port) {
+    url.port = String(OLLAMA_DEFAULT_PORT);
+  }
+
+  return url.origin;
+}
+
 /**
  * Validates and normalizes a host URL to ensure it uses http or https protocol.
  * @param raw - The raw URL string to validate
  * @returns The normalized URL origin if valid, or null if invalid
  */
 export function validateHostUrl(raw: string): string | null {
-  try {
-    const url = new URL(raw.trim());
-    if (url.protocol !== "http:" && url.protocol !== "https:") {
-      return null;
-    }
-    return url.origin;
-  } catch {
-    return null;
-  }
+  return normalizeHostInput(raw);
 }
 
 /**
@@ -61,7 +108,8 @@ export async function fetchOllamaStatus(hostInput: string): Promise<OllamaPanelS
       online: false,
       models: [],
       running: [],
-      error: "Invalid host URL. Use http:// or https:// only.",
+      error:
+        "Invalid host. Enter an IP, hostname, or URL (http/https only; port defaults to 11434).",
     };
   }
 

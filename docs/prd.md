@@ -154,13 +154,14 @@ Token values and Tailwind setup: see [DESIGN.md](DESIGN.md).
 * Tailwind CSS v4 is required.
 * Host data should be stored locally in `localStorage`.
 * API calls to Ollama should be routed through the Next.js backend to avoid browser CORS problems.
-* Invalid host URLs must be rejected.
+* Invalid host URLs must be rejected after normalization (IPs, hostnames, and full URLs).
 * UI must handle offline hosts gracefully.
 
 ### Security Constraints
 
 * Validate host URLs before server-side fetch.
-* Only allow `http:` and `https:` URLs.
+* Only allow `http:` and `https:` URLs after normalization.
+* Reject credentials, paths, query strings, and non-http(s) schemes in host input.
 * Keep timeouts short.
 * Do not expose stack traces in the UI.
 * Treat user-entered host URLs as untrusted input.
@@ -214,11 +215,27 @@ As a user, I want to add and remove Ollama hosts.
 Acceptance criteria:
 
 * User can open an accessible dialog.
-* User can enter a valid host URL.
+* User can enter a valid host URL, LAN IP address, or hostname (shorthand or full URL).
+* Shorthand without `http://` / `https://` is normalized to `http://` with Ollama port **11434** when no port is given (e.g. `192.168.1.10` → `http://192.168.1.10:11434`).
+* `http://192.168.1.10` without a port also normalizes to port **11434**, not implicit port 80.
 * User can save the host.
 * User can remove non-default hosts.
 * Hosts persist in `localStorage`.
 * Active host can be selected with mouse and keyboard.
+* `?host=` query values are normalized on page load the same way as dialog input.
+
+### Story 5b: Add LAN Ollama host by IP
+
+As a user, I want to monitor an Ollama instance on another machine on my network using its IP or hostname.
+
+Acceptance criteria:
+
+* User can add hosts such as `192.168.1.10`, `192.168.1.10:11434`, `my-server.local:11434`, or `http://192.168.1.10:11434`.
+* Duplicate shorthand and full URL for the same host resolve to one stored origin (no duplicate list entries).
+* Offline LAN hosts show the standard unreachable message without crashing the app.
+* Reachability depends on Ollama on the target machine listening on the network (see operations note below).
+
+**Operations (LAN):** On the machine running Ollama, bind to all interfaces when you need LAN access, for example `OLLAMA_HOST=0.0.0.0` (or your platform’s equivalent). The panel only validates and normalizes URLs; it does not discover hosts on the subnet.
 
 ## 10. Information Architecture
 
@@ -275,7 +292,10 @@ Internal API route:
 
 ```txt
 GET /api/ollama/status?host=http://localhost:11434
+GET /api/ollama/status?host=http://192.168.1.10:11434
 ```
+
+The `host` query parameter must be a normalized `http:` or `https:` origin (including explicit port when using the default Ollama port). Shorthand values in the browser UI or `?host=` on the home page are normalized before this call.
 
 The route calls the selected host:
 

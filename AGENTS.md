@@ -98,6 +98,8 @@ Before considering work done:
 * App loads with Ollama online.
 * Default host is visible.
 * User can add a host.
+* User can add a host via IP shorthand (e.g. `192.168.1.10` → `http://192.168.1.10:11434`).
+* User can switch to a LAN host and see offline messaging when unreachable.
 * User can remove a non-default host.
 * User can select host with keyboard.
 * Dialog opens and closes with keyboard.

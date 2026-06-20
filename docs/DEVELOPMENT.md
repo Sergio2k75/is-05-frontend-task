@@ -136,6 +136,15 @@ Cards:
 * Add/remove/select hosts.
 * Persist to `localStorage`.
 * Accessible dialog and keyboard support.
+* Normalize host input in `lib/ollama.ts` (`normalizeHostInput` / `validateHostUrl`): IPs and hostnames without scheme → `http://`; default port **11434** when omitted; reject credentials, paths, and non-http(s) schemes.
+* Add-host dialog uses text input (not URL-only browser validation) with placeholders and errors for LAN shorthand.
+
+**Manual checks (LAN / shorthand):**
+
+* Add `192.168.1.x` (or a real LAN IP) → stored as `http://…:11434`.
+* Add `192.168.1.x:11434` and full `http://192.168.1.x:11434` → same stored URL, no duplicate.
+* Open `/?host=192.168.1.x` → normalizes to `http://192.168.1.x:11434`.
+* Offline LAN host shows unreachable message; invalid input (`ftp://`, empty) shows friendly error.
 
 ### Milestone 5 — Design tokens
 

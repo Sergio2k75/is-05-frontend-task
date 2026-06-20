@@ -29,7 +29,7 @@ export default async function Home({ searchParams }: PageProps) {
             Ollama Panel
           </PHeading>
           <PText size="x-small" color="contrast-medium">
-            version 0.05
+            version 0.06
           </PText>
         </div>
       </header>
@@ -44,7 +44,8 @@ export default async function Home({ searchParams }: PageProps) {
       <footer className="border-t border-contrast-low bg-surface">
         <div className="mx-auto max-w-[1120px] px-fluid-md py-static-lg">
           <PText size="small" color="contrast-medium">
-            Built for localhost Ollama monitoring. Host calls go through the Next.js API route.
+            Built for local and LAN Ollama monitoring. Use IPs or hostnames when Ollama
+            listens on the network; host calls go through the Next.js API route.
           </PText>
         </div>
       </footer>

@@ -298,6 +298,18 @@ Inputs should have:
 * Error text if invalid
 * Focus-visible outline
 
+**Add Host dialog — host URL field**
+
+| Element | Copy |
+|---------|------|
+| Label | Host URL |
+| Description (dialog) | Enter an IP, hostname, or full URL. http and https only; port defaults to 11434 when omitted. |
+| Placeholder | `192.168.1.10` or `http://192.168.1.10:11434` |
+| Error (invalid) | Enter an IP, hostname, or URL. http/https only; port defaults to 11434. |
+| Display name placeholder | Workstation (optional) |
+
+Use `PInputText` for the host field so shorthand IPs are not blocked by native URL validation before submit.
+
 ## 10. Layout
 
 ### 10.1 Desktop
