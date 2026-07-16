@@ -2,15 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  PButton,
-  PHeading,
-  PInputText,
-  PModal,
-  PTag,
-  PText,
-} from "@porsche-design-system/components-react/ssr";
-import { Button } from "@/components/ui/Button";
+import { PButton, PHeading, PTag, PText } from "@porsche-design-system/components-react/ssr";
 import { Card } from "@/components/ui/Card";
 import {
   ACTIVE_HOST_STORAGE_KEY,
@@ -118,7 +110,19 @@ export function HostManager({ activeHost }: HostManagerProps) {
       urlInputRef.current?.focus();
     }, 100);
 
-    return () => window.clearTimeout(timer);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        closeDialog();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [dialogOpen]);
   /**
    * Handles adding a new host after form validation.
@@ -229,66 +233,104 @@ export function HostManager({ activeHost }: HostManagerProps) {
         </ul>
 
         <div className="mt-fluid-sm">
-          <Button id={addButtonId} type="button" onClick={openDialog}>
+          <button
+            id={addButtonId}
+            type="button"
+            onClick={openDialog}
+            className="rounded-md bg-contrast-high px-static-sm py-static-xs text-small font-semibold text-surface"
+          >
             Add host
-          </Button>
+          </button>
         </div>
       </Card>
 
-      <PModal
-        open={dialogOpen}
-        onDismiss={closeDialog}
-        aria={{ "aria-label": "Add Ollama host" }}
-        disableBackdropClick={false}
-      >
-        <div className="grid gap-fluid-md">
-          <div className="grid gap-static-xs">
-            <PHeading tag="h2" size="xl" weight="semibold">
-              Add Ollama host
-            </PHeading>
-            <PText id={dialogDescriptionId} size="small" color="contrast-medium">
-              Enter an IP, hostname, or full URL. http and https only; port defaults
-              to 11434 when omitted.
-            </PText>
-          </div>
+      {dialogOpen ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-fluid-md py-fluid-md"
+          onClick={closeDialog}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-host-title"
+            aria-describedby={dialogDescriptionId}
+            className="w-full max-w-lg rounded-lg border border-contrast-low bg-surface p-fluid-md shadow-lg"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="grid gap-fluid-md">
+              <div className="grid gap-static-xs">
+                <PHeading id="add-host-title" tag="h2" size="xl" weight="semibold">
+                  Add Ollama host
+                </PHeading>
+                <PText id={dialogDescriptionId} size="small" color="contrast-medium">
+                  Enter an IP, hostname, or full URL. http and https only; port defaults
+                  to 11434 when omitted.
+                </PText>
+              </div>
 
-          <form className="grid gap-fluid-sm" onSubmit={handleAddHost}>
-            <PInputText
-              ref={urlInputRef}
-              name="host-url"
-              label="Host URL"
-              placeholder="192.168.1.10 or http://192.168.1.10:11434"
-              value={urlValue}
-              required
-              state={formError ? "error" : "none"}
-              message={formError ?? ""}
-              onInput={(event) => {
-                setUrlValue((event.target as HTMLInputElement).value);
-                if (formError) {
-                  setFormError(null);
-                }
-              }}
-            />
+              <form className="grid gap-fluid-sm" onSubmit={handleAddHost}>
+                <label className="grid gap-static-xs text-small font-semibold" htmlFor="host-url">
+                  <span>Host URL</span>
+                  <input
+                    ref={urlInputRef}
+                    id="host-url"
+                    name="host-url"
+                    type="text"
+                    placeholder="192.168.1.10 or http://192.168.1.10:11434"
+                    value={urlValue}
+                    required
+                    aria-invalid={Boolean(formError)}
+                    className="rounded-md border border-contrast-low bg-surface px-static-sm py-static-sm"
+                    onInput={(event) => {
+                      setUrlValue((event.target as HTMLInputElement).value);
+                      if (formError) {
+                        setFormError(null);
+                      }
+                    }}
+                  />
+                </label>
 
-            <PInputText
-              name="host-name"
-              label="Display name (optional)"
-              placeholder="Workstation"
-              value={nameValue}
-              onInput={(event) => {
-                setNameValue((event.target as HTMLInputElement).value);
-              }}
-            />
+                {formError ? (
+                  <p role="alert" className="text-small text-danger">
+                    {formError}
+                  </p>
+                ) : null}
 
-            <div className="flex flex-wrap justify-end gap-static-sm">
-              <PButton type="button" variant="secondary" onClick={closeDialog}>
-                Cancel
-              </PButton>
-              <PButton type="submit">Save host</PButton>
+                <label className="grid gap-static-xs text-small font-semibold" htmlFor="host-name">
+                  <span>Display name (optional)</span>
+                  <input
+                    id="host-name"
+                    name="host-name"
+                    type="text"
+                    placeholder="Workstation"
+                    value={nameValue}
+                    className="rounded-md border border-contrast-low bg-surface px-static-sm py-static-sm"
+                    onInput={(event) => {
+                      setNameValue((event.target as HTMLInputElement).value);
+                    }}
+                  />
+                </label>
+
+                <div className="flex flex-wrap justify-end gap-static-sm">
+                  <button
+                    type="button"
+                    onClick={closeDialog}
+                    className="rounded-md border border-contrast-low px-static-sm py-static-xs text-small font-semibold"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-md bg-contrast-high px-static-sm py-static-xs text-small font-semibold text-surface"
+                  >
+                    Save host
+                  </button>
+                </div>
+              </form>
             </div>
-          </form>
+          </div>
         </div>
-      </PModal>
+      ) : null}
     </section>
   );
 }

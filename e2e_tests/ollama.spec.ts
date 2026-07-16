@@ -1,38 +1,61 @@
 /**
- * Ollama Panel UI tests.
+ * Browser-level UI coverage for the Ollama Panel.
  *
- * Exercises the Next.js app in a real browser. Requires the dev server
- * running at http://localhost:3000 (npm run dev).
+ * These tests exercise the main dashboard flows in a real browser and are
+ * intended to run against the local Next.js dev server.
  *
- * Run: npx playwright test e2e_tests/ollama.spec.ts
+ * Examples:
+ *   npm run test:e2e -- e2e_tests/ollama.spec.ts
+ *   npx playwright test e2e_tests/ollama.spec.ts --project=chromium
+ *   npx playwright test --grep "add host" --headed
  */
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
-const APP_URL = 'http://localhost:3000';
-
-test('has title', async ({ page }) => {
-  await page.goto(`${APP_URL}/`);
-
-  // Page title should identify the Ollama Panel app.
-  await expect(page).toHaveTitle(/Ollama/);
+test.beforeEach(async ({ page }) => {
+  await page.goto('/');
+  await page.evaluate(() => window.localStorage.clear());
+  await page.reload();
 });
 
-test('shows main UI and opens add-host dialog', async ({ page }) => {
-  await page.goto(`${APP_URL}/`);
-
-  // Hero section references the version API endpoint.
-  await expect(page.getByText('From GET /api/version')).toBeVisible();
-
-  // Core layout: heading and host management controls.
+test('renders the core dashboard layout', async ({ page }) => {
+  await expect(page).toHaveTitle(/Ollama/);
   await expect(page.getByRole('heading', { name: 'Ollama Panel' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Host status' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Models', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: /add host/i })).toBeVisible();
+  await expect(page.getByText(/Monitor Ollama host health/i)).toBeVisible();
+});
 
-  // Add-host flow: button opens an accessible dialog.
+test('opens and closes the add-host dialog with keyboard', async ({ page }) => {
+  await page.getByRole('button', { name: /add host/i }).focus();
+  await page.keyboard.press('Enter');
+
+  await expect(page.getByLabel('Host URL')).toBeVisible();
+
+  await page.keyboard.press('Escape');
+  await expect(page.getByLabel('Host URL')).not.toBeVisible();
+});
+
+test('adds, selects, and removes a host using shorthand input', async ({ page }) => {
   await page.getByRole('button', { name: /add host/i }).click();
-  await expect(page.getByRole('heading', { name: /add ollama host/i })).toBeVisible();
 
-  // Default local host chip is visible in the host list.
-  await expect(
-    page.getByRole('button', { name: /select host local/i })
-  ).toBeVisible();
+  await expect(page.getByLabel('Host URL')).toBeVisible();
+  await page.getByLabel('Host URL').fill('192.168.1.10');
+  await page.getByLabel('Display name (optional)').fill('Workstation');
+  await page.getByRole('button', { name: /save host/i }).click();
+
+  await expect(page.getByText('Workstation')).toBeVisible();
+  await expect(page.getByText('http://192.168.1.10:11434')).toBeVisible();
+
+  await page.locator('li', { hasText: 'Workstation' }).getByRole('button', { name: /remove/i }).click();
+  await expect(page.getByText('Workstation')).not.toBeVisible();
+});
+
+test('keeps the dashboard usable on a small mobile viewport', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.reload();
+
+  await expect(page.getByRole('button', { name: /add host/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Host status' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Models', exact: true })).toBeVisible();
 });
